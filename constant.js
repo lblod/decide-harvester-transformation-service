@@ -10,7 +10,7 @@ export const TASK_TYPE = "http://redpencil.data.gift/vocabularies/tasks/Task";
 export const ERROR_TYPE = "http://open-services.net/ns/core#Error";
 export const ERROR_URI_PREFIX = "http://redpencil.data.gift/id/jobs/error/";
 export const connectionOptions = {
-    // scope: "http://services.redpencil.io/decide-consumer-service"
+  // scope: "http://services.redpencil.io/decide-consumer-service"
 };
 export const PREFIXES = `
   PREFIX harvesting: <http://lblod.data.gift/vocabularies/harvesting/>
@@ -29,14 +29,12 @@ export const PREFIXES = `
 `;
 
 export const HIGH_LOAD_DATABASE_ENDPOINT =
-    process.env.HIGH_LOAD_DATABASE_ENDPOINT || "http://database:8890/sparql";
+  process.env.HIGH_LOAD_DATABASE_ENDPOINT || "http://database:8890/sparql";
 export const TARGET_GRAPH = process.env.TARGET_GRAPH || "http://mu.semte.ch/graphs/public";
 
 export const PUBLISHER_URI =
-    process.env.PUBLISHER_URI || "http://data.lblod.info/services/decide-consumer-service";
+  process.env.PUBLISHER_URI || "http://data.lblod.info/services/decide-consumer-service";
 
 export const DEFAULT_GRAPH = process.env.DEFAULT_GRAPH || "http://mu.semte.ch/graphs/harvesting";
 
 export const BATCH_SIZE = parseInt(process.env.DCR_BATCH_SIZE) || 100;
-
-
