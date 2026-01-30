@@ -30,11 +30,11 @@ export const PREFIXES = `
 
 export const HIGH_LOAD_DATABASE_ENDPOINT =
   process.env.HIGH_LOAD_DATABASE_ENDPOINT || "http://database:8890/sparql";
-export const TARGET_GRAPH = process.env.TARGET_GRAPH || "http://mu.semte.ch/graphs/public";
+export const INGEST_GRAPH = process.env.INGEST_GRAPH || "http://mu.semte.ch/graphs/public";
 
 export const PUBLISHER_URI =
-  process.env.PUBLISHER_URI || "http://data.lblod.info/services/decide-consumer-service";
-
-export const DEFAULT_GRAPH = process.env.DEFAULT_GRAPH || "http://mu.semte.ch/graphs/harvesting";
+  process.env.PUBLISHER_URI ||
+  "http://data.lblod.info/services/decide-harvester-transformation-service";
 
 export const BATCH_SIZE = parseInt(process.env.DCR_BATCH_SIZE) || 100;
+export const SLEEP_BETWEEN_BATCHES = parseInt(process.env.SLEEP_BETWEEN_BATCHES) || 1000;
