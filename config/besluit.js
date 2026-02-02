@@ -7,8 +7,9 @@ const prefixes = `
   PREFIX dcterms: <http://purl.org/dc/terms/>
   PREFIX prov:    <http://www.w3.org/ns/prov#>
   PREFIX epvoc:   <https://data.europarl.europa.eu/def/epvoc#>
-  PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-  PREFIX sql:  <http://www.openlinksw.com/schemas/sql#>`;
+  PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
+  PREFIX sql:     <http://www.openlinksw.com/schemas/sql#>
+  PREFIX ext:     <http://mu.semte.ch/vocabularies/ext/>`;
 
 export const getTransformationQueries = (resourcesGraph) => {
   const inputResourcesGraph = sparqlEscapeUri(resourcesGraph);
@@ -243,6 +244,37 @@ export const getTransformationQueries = (resourcesGraph) => {
       }`,
   };
 
+  const valueQueries = {
+    count: `${prefixes}
+      SELECT (COUNT(*) AS ?count) WHERE {
+        GRAPH ${inputResourcesGraph} {
+          ?besluit a besluit:Besluit .
+        }
+        GRAPH ${inputDataGraph} {
+          ?besluit prov:value ?value .
+        }
+      }`,
+
+    insert: (limit, offset) => `${prefixes}
+      INSERT {
+        GRAPH ${outputGraph} {
+            ?besluit ext:originalValue ?value_nl .
+        }
+      } WHERE {
+        {
+          SELECT * WHERE {
+            GRAPH ${inputResourcesGraph} {
+              ?besluit a besluit:Besluit .
+            }
+            GRAPH ${inputDataGraph} {
+              ?besluit prov:value ?value .
+            }
+          } LIMIT ${limit} OFFSET ${offset}
+        }
+        BIND(STRLANG(STR(?value), "nl") AS ?value_nl)
+      }`,
+  };
+
   const creatorQueries = {
     count: `${prefixes}
       SELECT (COUNT(*) AS ?count) WHERE {
@@ -319,6 +351,7 @@ export const getTransformationQueries = (resourcesGraph) => {
     date: dateQueries,
     language: languageQueries,
     content: contentQueries,
+    value: valueQueries,
     creator: creatorQueries,
     contributor: contributorQueries,
   };
