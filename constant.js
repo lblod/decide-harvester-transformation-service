@@ -37,5 +37,5 @@ export const PUBLISHER_URI =
   process.env.PUBLISHER_URI ||
   "http://data.lblod.info/services/decide-harvester-transformation-service";
 
-export const BATCH_SIZE = parseInt(process.env.DCR_BATCH_SIZE) || 100;
+export const BATCH_SIZE = parseInt(process.env.BATCH_SIZE) || 100;
 export const SLEEP_BETWEEN_BATCHES = parseInt(process.env.SLEEP_BETWEEN_BATCHES) || 1000;
