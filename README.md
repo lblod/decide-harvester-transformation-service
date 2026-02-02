@@ -1,4 +1,4 @@
-# harvesting publish decide service
+# Decide harvester transformation service
 
 takes the input file container of the previous step and publish it to the public graphs
 
