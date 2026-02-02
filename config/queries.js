@@ -1,5 +1,5 @@
 import { getTransformationQueries as besluit } from "./besluit.js";
 
-export const transformationQueryFactories = (resourceGraph) => ({
+export const transformationQueriesByTypeFn = (resourceGraph) => ({
   besluit: besluit(resourceGraph),
 });
