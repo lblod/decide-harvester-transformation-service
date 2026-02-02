@@ -344,6 +344,37 @@ export const getTransformationQueries = (resourcesGraph) => {
       }`,
   };
 
+  const motivationQueries = {
+    count: `${prefixes}
+      SELECT (COUNT(*) AS ?count) WHERE {
+        GRAPH ${inputResourcesGraph} {
+          ?besluit a besluit:Besluit .
+        }
+        GRAPH ${inputDataGraph} {
+          ?besluit besluit:motivering ?motivation .
+        }
+      }`,
+
+    insert: (limit, offset) => `${prefixes}
+      INSERT {
+        GRAPH ${outputGraph} {
+            ?besluit besluit:motivering ?motivation_nl .
+        }
+      } WHERE {
+        {
+          SELECT * WHERE {
+            GRAPH ${inputResourcesGraph} {
+              ?besluit a besluit:Besluit .
+            }
+            GRAPH ${inputDataGraph} {
+              ?besluit besluit:motivering ?motivation .
+            }
+          } LIMIT ${limit} OFFSET ${offset}
+        }
+        BIND(STRLANG(STR(?motivation), "nl") AS ?motivation_nl)
+      }`,
+  };
+
   return {
     resource: resourceQueries,
     title: titleQueries,
@@ -354,5 +385,6 @@ export const getTransformationQueries = (resourcesGraph) => {
     value: valueQueries,
     creator: creatorQueries,
     contributor: contributorQueries,
+    motivation: motivationQueries,
   };
 };
