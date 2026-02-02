@@ -1,5 +1,5 @@
 import { sparqlEscapeUri } from "mu";
-import { INGEST_GRAPH, OUTPUT_GRAPH } from "./../constant";
+import { INPUT_GRAPH, OUTPUT_GRAPH } from "./../constant";
 
 const prefixes = `
   PREFIX besluit: <http://data.vlaanderen.be/ns/besluit#>
@@ -13,7 +13,7 @@ const prefixes = `
 
 export const getTransformationQueries = (resourcesGraph) => {
   const inputResourcesGraph = sparqlEscapeUri(resourcesGraph);
-  const inputDataGraph = sparqlEscapeUri(INGEST_GRAPH);
+  const inputDataGraph = sparqlEscapeUri(INPUT_GRAPH);
   const outputGraph = sparqlEscapeUri(OUTPUT_GRAPH);
 
   const resourceQueries = {
