@@ -6,7 +6,9 @@ const prefixes = `
   PREFIX eli:     <http://data.europa.eu/eli/ontology#>
   PREFIX dcterms: <http://purl.org/dc/terms/>
   PREFIX prov:    <http://www.w3.org/ns/prov#>
-  PREFIX epvoc:   <https://data.europarl.europa.eu/def/epvoc#>`;
+  PREFIX epvoc:   <https://data.europarl.europa.eu/def/epvoc#>
+  PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+  PREFIX sql:  <http://www.openlinksw.com/schemas/sql#>`;
 
 export const getTransformationQueries = (resourcesGraph) => {
   const inputResourcesGraph = sparqlEscapeUri(resourcesGraph);
@@ -181,32 +183,63 @@ export const getTransformationQueries = (resourcesGraph) => {
 
   const contentQueries = {
     count: `${prefixes}
-      SELECT (COUNT(*) AS ?count) WHERE {
+      SELECT (COUNT(DISTINCT ?besluit) AS ?count)
+      WHERE {
         GRAPH ${inputResourcesGraph} {
           ?besluit a besluit:Besluit .
         }
         GRAPH ${inputDataGraph} {
-          ?besluit prov:value ?content .
+          ?besluit eli:has_part ?article .
+          ?article eli:number ?number ;
+                   prov:value ?value .
         }
       }`,
 
     insert: (limit, offset) => `${prefixes}
       INSERT {
         GRAPH ${outputGraph} {
-            ?besluit epvoc:expressionContent ?content_nl .
+          ?besluit epvoc:expressionContent ?content_nl .
         }
-      } WHERE {
+      }
+      WHERE {
         {
-          SELECT * WHERE {
-            GRAPH ${inputResourcesGraph} {
-              ?besluit a besluit:Besluit .
+          SELECT ?besluit (STRLANG(STR(?concatValue), "nl") AS ?content_nl)
+          WHERE {
+            {
+              SELECT DISTINCT ?besluit
+              WHERE {
+                GRAPH ${inputResourcesGraph} {
+                  ?besluit a besluit:Besluit .
+                }
+                GRAPH ${inputDataGraph} {
+                  ?besluit eli:has_part ?anyArticle .
+                  ?anyArticle eli:number ?anyNumber ;
+                              prov:value ?anyValue .
+                }
+              }
+              ORDER BY ?besluit
+              LIMIT ${limit} OFFSET ${offset}
             }
-            GRAPH ${inputDataGraph} {
-              ?besluit prov:value ?content .
+            {
+              SELECT ?besluit (sql:GROUP_CONCAT(?value, "\n") AS ?concatValue)
+              WHERE {
+                {
+                  SELECT ?besluit ?value ?numberInt
+                  WHERE {
+                    GRAPH ${inputDataGraph} {
+                      ?besluit eli:has_part ?article .
+                      ?article eli:number ?number ;
+                               prov:value ?value .
+                      BIND(xsd:integer(REPLACE(STR(?number), "[^0-9]", "")) AS ?numberInt)
+                    }
+                  }
+                  ORDER BY ?besluit ?numberInt
+                }
+              }
+              GROUP BY ?besluit
             }
-          } LIMIT ${limit} OFFSET ${offset}
+          }
         }
-        BIND(STRLANG(STR(?content), "nl") AS ?content_nl)
       }`,
   };
 
