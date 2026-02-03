@@ -221,7 +221,7 @@ export const getTransformationQueries = (resourcesGraph) => {
               LIMIT ${limit} OFFSET ${offset}
             }
             {
-              SELECT ?besluit (GROUP_CONCAT(?value, "\n") AS ?concatValue)
+              SELECT ?besluit (GROUP_CONCAT(?value; separator="\n") AS ?concatValue)
               WHERE {
                 {
                   SELECT ?besluit ?value ?numberInt
