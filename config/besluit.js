@@ -8,7 +8,6 @@ const prefixes = `
   PREFIX prov:    <http://www.w3.org/ns/prov#>
   PREFIX epvoc:   <https://data.europarl.europa.eu/def/epvoc#>
   PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
-  PREFIX sql:     <http://www.openlinksw.com/schemas/sql#>
   PREFIX ext:     <http://mu.semte.ch/vocabularies/ext/>`;
 
 export const getTransformationQueries = (resourcesGraph) => {
@@ -222,7 +221,7 @@ export const getTransformationQueries = (resourcesGraph) => {
               LIMIT ${limit} OFFSET ${offset}
             }
             {
-              SELECT ?besluit (sql:GROUP_CONCAT(?value, "\n") AS ?concatValue)
+              SELECT ?besluit (GROUP_CONCAT(?value, "\n") AS ?concatValue)
               WHERE {
                 {
                   SELECT ?besluit ?value ?numberInt
