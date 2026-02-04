@@ -183,81 +183,19 @@ export const getTransformationQueries = (resourcesGraph) => {
 
   const contentQueries = {
     count: `${prefixes}
-      SELECT (COUNT(DISTINCT ?besluit) AS ?count)
-      WHERE {
-        GRAPH ${inputResourcesGraph} {
-          ?besluit a besluit:Besluit .
-        }
-        GRAPH ${inputDataGraph} {
-          ?besluit eli:has_part ?article .
-          ?article eli:number ?number ;
-                   prov:value ?value .
-        }
-      }`,
-
-    insert: (limit, offset) => `${prefixes}
-      INSERT {
-        GRAPH ${outputGraph} {
-          ?besluit epvoc:expressionContent ?content_nl .
-        }
-      }
-      WHERE {
-        {
-          SELECT ?besluit (STRLANG(STR(?concatValue), "nl") AS ?content_nl)
-          WHERE {
-            {
-              SELECT DISTINCT ?besluit
-              WHERE {
-                GRAPH ${inputResourcesGraph} {
-                  ?besluit a besluit:Besluit .
-                }
-                GRAPH ${inputDataGraph} {
-                  ?besluit eli:has_part ?anyArticle .
-                  ?anyArticle eli:number ?anyNumber ;
-                              prov:value ?anyValue .
-                }
-              }
-              ORDER BY ?besluit
-              LIMIT ${limit} OFFSET ${offset}
-            }
-            {
-              SELECT ?besluit (GROUP_CONCAT(?value; separator="\\n") AS ?concatValue)
-              WHERE {
-                {
-                  SELECT ?besluit ?value ?numberInt
-                  WHERE {
-                    GRAPH ${inputDataGraph} {
-                      ?besluit eli:has_part ?article .
-                      ?article eli:number ?number ;
-                               prov:value ?value .
-                      BIND(xsd:integer(REPLACE(STR(?number), "[^0-9]", "")) AS ?numberInt)
-                    }
-                  }
-                  ORDER BY ?besluit ?numberInt
-                }
-              }
-              GROUP BY ?besluit
-            }
-          }
-        }
-      }`,
-  };
-
-  const valueQueries = {
-    count: `${prefixes}
       SELECT (COUNT(*) AS ?count) WHERE {
         GRAPH ${inputResourcesGraph} {
           ?besluit a besluit:Besluit .
         }
         GRAPH ${inputDataGraph} {
-          ?besluit prov:value ?value .
+          ?besluit prov:value ?content .
         }
       }`,
 
     insert: (limit, offset) => `${prefixes}
       INSERT {
         GRAPH ${outputGraph} {
-            ?besluit ext:originalValue ?value_nl .
+            ?besluit epvoc:expressionContent ?content_nl .
         }
       } WHERE {
         {
@@ -266,11 +204,11 @@ export const getTransformationQueries = (resourcesGraph) => {
               ?besluit a besluit:Besluit .
             }
             GRAPH ${inputDataGraph} {
-              ?besluit prov:value ?value .
+              ?besluit prov:value ?content .
             }
           } LIMIT ${limit} OFFSET ${offset}
         }
-        BIND(STRLANG(STR(?value), "nl") AS ?value_nl)
+        BIND(STRLANG(STR(?content), "nl") AS ?content_nl)
       }`,
   };
 
@@ -375,15 +313,14 @@ export const getTransformationQueries = (resourcesGraph) => {
   };
 
   return {
-    content: contentQueries,
-    value: valueQueries,
-    motivation: motivationQueries,
     resource: resourceQueries,
     title: titleQueries,
     description: descriptionQueries,
     date: dateQueries,
     language: languageQueries,
+    content: contentQueries,
     creator: creatorQueries,
     contributor: contributorQueries,
+    motivation: motivationQueries,
   };
 };
