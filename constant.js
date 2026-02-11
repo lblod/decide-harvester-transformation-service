@@ -30,8 +30,13 @@ export const PREFIXES = `
   PREFIX adms: <http://www.w3.org/ns/adms#>
 `;
 
-export const HIGH_LOAD_DATABASE_ENDPOINT =
-  process.env.HIGH_LOAD_DATABASE_ENDPOINT || "http://database:8890/sparql";
+export const DIRECT_SPARQL_ENDPOINT =
+  process.env.DIRECT_SPARQL_ENDPOINT || "http://virtuoso:8890/sparql";
+
+export const BYPASS_MU_SPARQL_ENDPOINT = /^(true|1|yes|on)$/i.test(
+  process.env.BYPASS_MU_SPARQL_ENDPOINT?.trim(),
+);
+
 export const INPUT_GRAPH = process.env.INPUT_GRAPH || "http://mu.semte.ch/graphs/public";
 export const OUTPUT_GRAPH = process.env.OUTPUT_GRAPH || "http://mu.semte.ch/graphs/public";
 export const ORGANIZATIONS_GRAPH = (process.env.ORGANIZATIONS_GRAPH =
