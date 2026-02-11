@@ -55,6 +55,7 @@ Add a delta rule so scheduled tasks are sent to the service:
 | `HIGH_LOAD_DATABASE_ENDPOINT` | SPARQL endpoint used for reads/writes of input and output data (i.e. non-task data). | `http://database:8890/sparql`                                         |
 | `INPUT_GRAPH`                 | Graph containing data to be transformed (used by data queries).                      | `http://mu.semte.ch/graphs/public`                                    |
 | `OUTPUT_GRAPH`                | Target graph for transformed data                                                    | `http://mu.semte.ch/graphs/public`                                    |
+| `ORGANIZATIONS_GRAPH`         | Graph containing organizational data for the transformation process to rely upon.    | `http://mu.semte.ch/graphs/public`                                    |
 | `DCR_BATCH_SIZE`              | Batch size (`LIMIT`) for SPARQL queries.                                             | `100`                                                                 |
 | `SLEEP_BETWEEN_BATCHES`       | Delay between SPARQL queries/inserts, in milliseconds.                               | `1000`                                                                |
 | `OPERATION_URI`               | Only tasks with `task:operation` set to this URI are handled.                        | `http://lblod.data.gift/id/jobs/concept/TaskOperation/decide-publish` | 

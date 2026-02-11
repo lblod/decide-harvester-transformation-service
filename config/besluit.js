@@ -1,5 +1,5 @@
 import { sparqlEscapeUri } from "mu";
-import { INPUT_GRAPH, OUTPUT_GRAPH } from "./../constant";
+import { INPUT_GRAPH, OUTPUT_GRAPH, ORGANIZATIONS_GRAPH } from "./../constant";
 
 const prefixes = `
   PREFIX besluit: <http://data.vlaanderen.be/ns/besluit#>
@@ -14,6 +14,7 @@ export const getTransformationQueries = (resourcesGraph) => {
   const inputResourcesGraph = sparqlEscapeUri(resourcesGraph);
   const inputDataGraph = sparqlEscapeUri(INPUT_GRAPH);
   const outputGraph = sparqlEscapeUri(OUTPUT_GRAPH);
+  const organizationsGraph = sparqlEscapeUri(ORGANIZATIONS_GRAPH);
 
   const resourceQueries = {
     count: `${prefixes}
@@ -226,8 +227,8 @@ export const getTransformationQueries = (resourcesGraph) => {
     insert: (limit, offset) => `${prefixes}
       INSERT {
         GRAPH ${outputGraph} {
-            ?besluit_work eli:passed_by ?bestuursorgaan ;
-                          dcterms:creator ?bestuursorgaan .
+            ?besluit_work eli:passed_by ?bestuursorgaan_basis ;
+                          dcterms:creator ?bestuursorgaan_basis .
         }
       } WHERE {
         {
@@ -238,6 +239,12 @@ export const getTransformationQueries = (resourcesGraph) => {
             GRAPH ${inputDataGraph} {
               ?besluit ^prov:generated / dcterms:subject / ^besluit:behandelt / besluit:isGehoudenDoor ?bestuursorgaan .
             }
+            OPTIONAL {
+              GRAPH ${organizationsGraph} {
+                ?bestuursorgaan mandaat:isTijdspecialisatieVan ?bestuursorgaan_parent .
+              }
+            }
+            BIND(COALESCE(?bestuursorgaan_parent, ?bestuursorgaan) AS ?bestuursorgaan_basis)
           } LIMIT ${limit} OFFSET ${offset}
         }
         BIND(URI(CONCAT(STR(?besluit), '/work')) AS ?besluit_work)

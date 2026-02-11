@@ -34,6 +34,8 @@ export const HIGH_LOAD_DATABASE_ENDPOINT =
   process.env.HIGH_LOAD_DATABASE_ENDPOINT || "http://database:8890/sparql";
 export const INPUT_GRAPH = process.env.INPUT_GRAPH || "http://mu.semte.ch/graphs/public";
 export const OUTPUT_GRAPH = process.env.OUTPUT_GRAPH || "http://mu.semte.ch/graphs/public";
+export const ORGANIZATIONS_GRAPH = (process.env.ORGANIZATIONS_GRAPH =
+  "http://mu.semte.ch/graphs/public");
 
 export const PUBLISHER_URI =
   process.env.PUBLISHER_URI ||
