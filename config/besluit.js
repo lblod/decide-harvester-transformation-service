@@ -261,24 +261,21 @@ export const getTransformationQueries = (resourcesGraph) => {
       }`,
   };
 
-  const contributorQueries = {
+  const aanwezigeQueries = {
     count: `${prefixes}
       SELECT (COUNT(*) AS ?count) WHERE {
         GRAPH ${inputResourcesGraph} {
           ?besluit a besluit:Besluit .
         }
         GRAPH ${inputDataGraph} {
-          ?besluit ^prov:generated ?behandeling .
-          OPTIONAL { ?behandeling besluit:heeftAanwezige ?aanwezige . }
-          OPTIONAL { ?behandeling besluit:heeftSecretaris ?secretaris . }
-          OPTIONAL { ?behandeling besluit:heeftVoorzitter ?voorzitter . }
+          ?besluit ^prov:generated / besluit:heeftAanwezige ?aanwezige .
         }
       }`,
 
     insert: (limit, offset) => `${prefixes}
       INSERT {
         GRAPH ${outputGraph} {
-            ?besluit_work dcterms:contributor ?aanwezige, ?secretaris, ?voorzitter .
+            ?besluit_work dcterms:contributor ?aanwezige .
         }
       } WHERE {
         {
@@ -287,10 +284,69 @@ export const getTransformationQueries = (resourcesGraph) => {
               ?besluit a besluit:Besluit .
             }
             GRAPH ${inputDataGraph} {
-              ?besluit ^prov:generated ?behandeling .
-              OPTIONAL { ?behandeling besluit:heeftAanwezige ?aanwezige . }
-              OPTIONAL { ?behandeling besluit:heeftSecretaris ?secretaris . }
-              OPTIONAL { ?behandeling besluit:heeftVoorzitter ?voorzitter . }
+              ?besluit ^prov:generated / besluit:heeftAanwezige ?aanwezige .
+            }
+          } LIMIT ${limit} OFFSET ${offset}
+        }
+        BIND(URI(CONCAT(STR(?besluit), '/work')) AS ?besluit_work)
+      }`,
+  };
+
+  const secretarisQueries = {
+    count: `${prefixes}
+      SELECT (COUNT(*) AS ?count) WHERE {
+        GRAPH ${inputResourcesGraph} {
+          ?besluit a besluit:Besluit .
+        }
+        GRAPH ${inputDataGraph} {
+          ?besluit ^prov:generated / besluit:heeftSecretaris ?secretaris .
+        }
+      }`,
+
+    insert: (limit, offset) => `${prefixes}
+      INSERT {
+        GRAPH ${outputGraph} {
+            ?besluit_work dcterms:contributor ?secretaris .
+        }
+      } WHERE {
+        {
+          SELECT * WHERE {
+            GRAPH ${inputResourcesGraph} {
+              ?besluit a besluit:Besluit .
+            }
+            GRAPH ${inputDataGraph} {
+              ?besluit ^prov:generated / besluit:heeftSecretaris ?secretaris .
+            }
+          } LIMIT ${limit} OFFSET ${offset}
+        }
+        BIND(URI(CONCAT(STR(?besluit), '/work')) AS ?besluit_work)
+      }`,
+  };
+
+  const voorzitterQueries = {
+    count: `${prefixes}
+      SELECT (COUNT(*) AS ?count) WHERE {
+        GRAPH ${inputResourcesGraph} {
+          ?besluit a besluit:Besluit .
+        }
+        GRAPH ${inputDataGraph} {
+          ?besluit ^prov:generated / besluit:heeftVoorzitter ?voorzitter .
+        }
+      }`,
+
+    insert: (limit, offset) => `${prefixes}
+      INSERT {
+        GRAPH ${outputGraph} {
+            ?besluit_work dcterms:contributor ?voorzitter .
+        }
+      } WHERE {
+        {
+          SELECT * WHERE {
+            GRAPH ${inputResourcesGraph} {
+              ?besluit a besluit:Besluit .
+            }
+            GRAPH ${inputDataGraph} {
+              ?besluit ^prov:generated / besluit:heeftVoorzitter ?voorzitter .
             }
           } LIMIT ${limit} OFFSET ${offset}
         }
@@ -337,7 +393,9 @@ export const getTransformationQueries = (resourcesGraph) => {
     language: languageQueries,
     content: contentQueries,
     creator: creatorQueries,
-    contributor: contributorQueries,
+    aanwezige: aanwezigeQueries,
+    secretaris: secretarisQueries,
+    voorzitter: voorzitterQueries,
     motivation: motivationQueries,
   };
 };
