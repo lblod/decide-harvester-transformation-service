@@ -23,15 +23,20 @@ export const getTransformationQueries = (resourcesGraph) => {
         GRAPH ${inputResourcesGraph} {
           ?besluit a besluit:Besluit .
         }
+        GRAPH ${inputDataGraph} {
+          ?besluit mu:uuid ?uuid .
+        }
       }`,
 
     insert: (limit, offset) => `${prefixes}
       INSERT {
         GRAPH ${outputGraph} {
           ?besluit a eli:Expression, eli:LegalExpression ;
+                   mu:uuid ?expressionUuid ;
                    dcterms:created ?now ;
                    dcterms:modified ?now .
           ?besluit_work a eli:Work, eli:LegalResource ;
+                        mu:uuid ?workUuid ;
                         eli:is_realized_by ?besluit ;
                         dcterms:created ?now ;
                         dcterms:modified ?now .
@@ -42,9 +47,13 @@ export const getTransformationQueries = (resourcesGraph) => {
             GRAPH ${inputResourcesGraph} {
               ?besluit a besluit:Besluit .
             }
+            GRAPH ${inputDataGraph} {
+              ?besluit mu:uuid ?expressionUuid .
+            }
           } LIMIT ${limit} OFFSET ${offset}
         }
         BIND(URI(CONCAT(STR(?besluit), '/work')) AS ?besluit_work)
+        BIND(STRUUID() AS ?workUuid)
         BIND(NOW() AS ?now)
       }`,
   };
