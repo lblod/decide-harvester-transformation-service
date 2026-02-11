@@ -3,6 +3,7 @@ import { INPUT_GRAPH, OUTPUT_GRAPH, ORGANIZATIONS_GRAPH } from "./../constant";
 
 const prefixes = `
   PREFIX besluit: <http://data.vlaanderen.be/ns/besluit#>
+  PREFIX mu:      <http://mu.semte.ch/vocabularies/core/>
   PREFIX eli:     <http://data.europa.eu/eli/ontology#>
   PREFIX dcterms: <http://purl.org/dc/terms/>
   PREFIX prov:    <http://www.w3.org/ns/prov#>
