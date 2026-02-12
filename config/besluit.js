@@ -250,12 +250,19 @@ export const getTransformationQueries = (resourcesGraph) => {
             GRAPH ${inputDataGraph} {
               ?besluit ^prov:generated / dcterms:subject / ^besluit:behandelt / besluit:isGehoudenDoor ?bestuursorgaan .
             }
+            BIND(
+              IF(
+                STRSTARTS(STR(?bestuursorgaan), "https://"),
+                URI(REPLACE(STR(?bestuursorgaan), "^https://", "http://")),
+                ?bestuursorgaan
+              ) AS ?bestuursorgaan_normalized
+            )
             OPTIONAL {
               GRAPH ${organizationsGraph} {
-                ?bestuursorgaan mandaat:isTijdspecialisatieVan ?bestuursorgaan_parent .
+                ?bestuursorgaan_normalized mandaat:isTijdspecialisatieVan ?bestuursorgaan_parent .
               }
             }
-            BIND(COALESCE(?bestuursorgaan_parent, ?bestuursorgaan) AS ?bestuursorgaan_basis)
+            BIND(COALESCE(?bestuursorgaan_parent, ?bestuursorgaan_normalized) AS ?bestuursorgaan_basis)
           } LIMIT ${limit} OFFSET ${offset}
         }
         BIND(URI(CONCAT(STR(?besluit), '/work')) AS ?besluit_work)
