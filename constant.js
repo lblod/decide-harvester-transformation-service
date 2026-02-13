@@ -39,8 +39,8 @@ export const BYPASS_MU_SPARQL_ENDPOINT = /^(true|1|yes|on)$/i.test(
 
 export const INPUT_GRAPH = process.env.INPUT_GRAPH || "http://mu.semte.ch/graphs/public";
 export const OUTPUT_GRAPH = process.env.OUTPUT_GRAPH || "http://mu.semte.ch/graphs/public";
-export const ORGANIZATIONS_GRAPH = (process.env.ORGANIZATIONS_GRAPH =
-  "http://mu.semte.ch/graphs/public");
+export const ORGANIZATIONS_GRAPH =
+  process.env.ORGANIZATIONS_GRAPH || "http://mu.semte.ch/graphs/public";
 
 export const PUBLISHER_URI =
   process.env.PUBLISHER_URI ||
