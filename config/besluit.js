@@ -393,6 +393,35 @@ export const getTransformationQueries = (resourcesGraph) => {
       }`,
   };
 
+  const provenanceQueries = {
+    count: `${prefixes}
+      SELECT (COUNT(*) AS ?count) WHERE {
+        GRAPH ${inputResourcesGraph} {
+          ?besluit a besluit:Besluit .
+        }
+        GRAPH ${inputDataGraph} {
+          ?besluit prov:wasDerivedFrom ?activity .
+        }
+      }`,
+
+    insert: (limit, offset) => `${prefixes}
+      INSERT {
+        GRAPH ${outputGraph} {
+            ?besluit prov:wasDerivedFrom ?activity .
+        }
+      } WHERE {
+        {
+          SELECT * WHERE {
+            GRAPH ${inputResourcesGraph} {
+              ?besluit a besluit:Besluit .
+            }
+            GRAPH ${inputDataGraph} {
+              ?besluit prov:wasDerivedFrom ?activity .
+            }
+          } LIMIT ${limit} OFFSET ${offset}
+        }
+      }`,
+  };
   return {
     resource: resourceQueries,
     title: titleQueries,
@@ -405,5 +434,6 @@ export const getTransformationQueries = (resourcesGraph) => {
     secretaris: secretarisQueries,
     voorzitter: voorzitterQueries,
     motivation: motivationQueries,
+    provenance: provenanceQueries,
   };
 };
