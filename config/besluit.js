@@ -196,11 +196,57 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
   const contentQueries = {
     count: `${prefixes}
       SELECT (COUNT(*) AS ?count) WHERE {
-        GRAPH ${inputResourcesGraph} {
-          ?besluit a besluit:Besluit .
-        }
-        GRAPH ${inputDataGraph} {
-          ?besluit prov:value ?content .
+        {
+          SELECT ?besluit ?content_nl WHERE {
+            GRAPH ${inputResourcesGraph} {
+              ?besluit a besluit:Besluit .
+            }
+            GRAPH ${inputDataGraph} {
+              {
+                ?besluit prov:value ?content .
+                FILTER NOT EXISTS {
+                  ?besluit eli:has_part ?artikel .
+                }
+                BIND(STRLANG(STR(?content), "nl") AS ?content_nl)
+              }
+              UNION
+              {
+                ?besluit eli:has_part ?artikel .
+                {
+                  SELECT ?besluit (GROUP_CONCAT(?nummerAndValue; separator="\n") AS ?newAggrContent)
+                  WHERE {
+                    {
+                      SELECT ?besluit ?nummerAndValue
+                      WHERE {
+                          ?besluit eli:has_part ?artikel .
+                          ?artikel eli:number ?nummer ;
+                                  prov:value ?value .
+                          BIND(concat(?nummer, '\n', ?value) as ?nummerAndValue)
+                      }
+                      ORDER BY ?nummer
+                    }
+                  }
+                  GROUP BY ?besluit
+                }
+                BIND(strlang(?newAggrContent, 'nl') as ?content_nl)
+              }
+              UNION
+              {
+                ?besluit a eli:Expression ;
+                  eli:title ?title .
+                FILTER NOT EXISTS {
+                  ?besluit prov:value ?value .
+                }
+                FILTER NOT EXISTS {
+                  ?besluit eli:has_part ?artikel .
+                }
+                OPTIONAL {
+                  ?besluit eli:description ?description .
+                }
+                BIND(strlang(if(bound(?description), str(?description), str(?title)), 'nl') as ?content_nl)
+              }
+            }
+          }
         }
       }`,
 
@@ -211,16 +257,57 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
         }
       } WHERE {
         {
-          SELECT * WHERE {
+          SELECT ?besluit ?content_nl WHERE {
             GRAPH ${inputResourcesGraph} {
               ?besluit a besluit:Besluit .
             }
             GRAPH ${inputDataGraph} {
-              ?besluit prov:value ?content .
+              {
+                ?besluit prov:value ?content .
+                FILTER NOT EXISTS {
+                  ?besluit eli:has_part ?artikel .
+                }
+                BIND(STRLANG(STR(?content), "nl") AS ?content_nl)
+              }
+              UNION
+              {
+                ?besluit eli:has_part ?artikel .
+                {
+                  SELECT ?besluit (GROUP_CONCAT(?nummerAndValue; separator="\n") AS ?newAggrContent)
+                  WHERE {
+                    {
+                      SELECT ?besluit ?nummerAndValue
+                      WHERE {
+                          ?besluit eli:has_part ?artikel .
+                          ?artikel eli:number ?nummer ;
+                                  prov:value ?value .
+                          BIND(concat(?nummer, '\n', ?value) as ?nummerAndValue)
+                      }
+                      ORDER BY ?nummer
+                    }
+                  }
+                  GROUP BY ?besluit
+                }
+                BIND(strlang(?newAggrContent, 'nl') as ?content_nl)
+              }
+              UNION
+              {
+                ?besluit a eli:Expression ;
+                  eli:title ?title .
+                FILTER NOT EXISTS {
+                  ?besluit prov:value ?value .
+                }
+                FILTER NOT EXISTS {
+                  ?besluit eli:has_part ?artikel .
+                }
+                OPTIONAL {
+                  ?besluit eli:description ?description .
+                }
+                BIND(strlang(if(bound(?description), str(?description), str(?title)), 'nl') as ?content_nl)
+              }
             }
           } LIMIT ${limit} OFFSET ${offset}
         }
-        BIND(STRLANG(STR(?content), "nl") AS ?content_nl)
       }`,
   };
 
@@ -393,6 +480,35 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
       }`,
   };
 
+  const provenanceQueries = {
+    count: `${prefixes}
+      SELECT (COUNT(*) AS ?count) WHERE {
+        GRAPH ${inputResourcesGraph} {
+          ?besluit a besluit:Besluit .
+        }
+        GRAPH ${inputDataGraph} {
+          ?besluit prov:wasDerivedFrom ?activity .
+        }
+      }`,
+
+    insert: (limit, offset) => `${prefixes}
+      INSERT {
+        GRAPH ${outputGraph} {
+            ?besluit prov:wasDerivedFrom ?activity .
+        }
+      } WHERE {
+        {
+          SELECT * WHERE {
+            GRAPH ${inputResourcesGraph} {
+              ?besluit a besluit:Besluit .
+            }
+            GRAPH ${inputDataGraph} {
+              ?besluit prov:wasDerivedFrom ?activity .
+            }
+          } LIMIT ${limit} OFFSET ${offset}
+        }
+      }`,
+  };
   return {
     resource: resourceQueries,
     title: titleQueries,
@@ -405,5 +521,6 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
     secretaris: secretarisQueries,
     voorzitter: voorzitterQueries,
     motivation: motivationQueries,
+    provenance: provenanceQueries,
   };
 };
