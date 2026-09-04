@@ -1,5 +1,5 @@
 import { sparqlEscapeUri } from "mu";
-import { INPUT_GRAPH, OUTPUT_GRAPH, ORGANIZATIONS_GRAPH } from "./../constant";
+import { INPUT_GRAPH, ORGANIZATIONS_GRAPH } from "./../constant";
 
 const prefixes = `
   PREFIX besluit: <http://data.vlaanderen.be/ns/besluit#>
@@ -12,10 +12,10 @@ const prefixes = `
   PREFIX ext:     <http://mu.semte.ch/vocabularies/ext/>
   PREFIX mandaat: <http://data.vlaanderen.be/ns/mandaat#>`;
 
-export const getTransformationQueries = (resourcesGraph) => {
+export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
   const inputResourcesGraph = sparqlEscapeUri(resourcesGraph);
   const inputDataGraph = sparqlEscapeUri(INPUT_GRAPH);
-  const outputGraph = sparqlEscapeUri(OUTPUT_GRAPH);
+  const outputGraph = sparqlEscapeUri(targetOutputGraph);
   const organizationsGraph = sparqlEscapeUri(ORGANIZATIONS_GRAPH);
 
   const resourceQueries = {
