@@ -1,14 +1,15 @@
 # Decide harvester transformation service
 
 ## About
-This service transforms OSLO besluiten into ELI and writes the results to a graph resolved per task. It reacts to `task:Task` deltas: when a task becomes `adms:status = scheduled`, the service loads the task, reads its input graph (via `task:inputContainer / task:hasGraph`), resolves the output graph for the task's bestuurseenheid (via `ext:hasResource` and `config/output-graph-mapping.js`), runs the configured transformation queries, and stores the resulting ELI triples in that output graph.
+This service transforms OSLO besluiten into ELI and writes the results to a graph resolved per input container. It reacts to `task:Task` deltas: when a task becomes `adms:status = scheduled`, the service loads the task and its input containers (via `task:inputContainer`), and for each container resolves the output graph for its bestuurseenheid (via `ext:hasResource` and `config/output-graph-mapping.js`), runs the configured transformation queries, and stores the resulting ELI triples in that container's output graph.
 
 ## How it works
 - A delta notification marks a task as `scheduled`.
-- The service loads the task and determines the `resourceGraph` from its input container.
-- The task's bestuurseenheid is read from `ext:hasResource` and looked up in `config/output-graph-mapping.js` to resolve the output graph for this task. Every task must carry `ext:hasResource`; the task is failed (an `oslc:Error` is recorded via `task:error`) if it's missing or if the bestuurseenheid isn't present in the map.
-- For each transformation "factory" in `config/queries.js`, it executes count + insert queries in batches.
-- On success, the task status is set to `success` and the resolved output graph is recorded on the task.
+- The service loads the task and all of its `task:inputContainer`s. A task can bundle work for multiple bestuurseenheden at once, each via its own input container.
+- Each input container must carry both `task:hasGraph` (the graph of resources to transform) and `ext:hasResource` (the bestuurseenheid it belongs to). The task fails (an `oslc:Error` is recorded via `task:error`) if it has no input containers, or if any container is missing either property.
+- For each input container, the bestuurseenheid is looked up in `config/output-graph-mapping.js` to resolve that container's output graph; the task fails if the bestuurseenheid isn't present in the map.
+- For each transformation "factory" in `config/queries.js`, it executes count + insert queries in batches, writing into the container's resolved output graph.
+- On success, the task status is set to `success`, one result container (linked via `task:resultsContainer`) is recorded per input container pointing at its resolved output graph, and all input graphs are dropped.
 
 ## Usage
 Add the service to your docker-compose and point it at your triplestore. Example:
@@ -61,7 +62,7 @@ Add a delta rule so scheduled tasks are sent to the service:
 | `OPERATION_URI`             | Only tasks with `task:operation` set to this URI are handled.                                                      | `http://lblod.data.gift/id/jobs/concept/TaskOperation/decide-publish` | 
 
 ## Notes
-- The input resources graph is provided per task via `task:inputContainer / task:hasGraph`.
-- Every task must carry `ext:hasResource`, pointing at the bestuurseenheid (administrative unit) the task's data belongs to.
-- The output graph is resolved per task from `config/output-graph-mapping.js`, a static map from bestuurseenheid URI to output graph URI. Adding support for a new bestuurseenheid requires adding an entry to that file and redeploying the service.
+- A task can have multiple `task:inputContainer`s, one per bestuurseenheid it bundles work for.
+- Every input container must carry both `task:hasGraph` (the resources graph) and `ext:hasResource`, pointing at the bestuurseenheid (administrative unit) that container's data belongs to.
+- The output graph is resolved per input container from `config/output-graph-mapping.js`, a static map from bestuurseenheid URI to output graph URI. Adding support for a new bestuurseenheid requires adding an entry to that file and redeploying the service.
 - If you need additional transformations, add a factory in `config/` and export it from `config/queries.js`. New factories must accept `(resourceGraph, outputGraph)`.
