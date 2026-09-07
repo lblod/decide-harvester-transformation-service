@@ -37,6 +37,11 @@ export const BYPASS_MU_SPARQL_ENDPOINT = /^(true|1|yes|on)$/i.test(
   process.env.BYPASS_MU_SPARQL_ENDPOINT?.trim(),
 );
 
+export const DROP_INPUT_GRAPH =
+  process.env.DROP_INPUT_GRAPH === undefined
+    ? true
+    : /^(true|1|yes|on)$/i.test(process.env.DROP_INPUT_GRAPH.trim());
+
 export const INPUT_GRAPH = process.env.INPUT_GRAPH || "http://mu.semte.ch/graphs/public";
 export const OUTPUT_GRAPH = process.env.OUTPUT_GRAPH || "http://mu.semte.ch/graphs/public";
 export const ORGANIZATIONS_GRAPH =
