@@ -213,7 +213,7 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
               {
                 ?besluit eli:has_part ?artikel .
                 {
-                  SELECT ?besluit (GROUP_CONCAT(?nummerAndValue; separator="\n") AS ?newAggrContent)
+                  SELECT ?besluit (GROUP_CONCAT(?nummerAndValue; separator="\\n") AS ?newAggrContent)
                   WHERE {
                     {
                       SELECT ?besluit ?nummerAndValue
@@ -221,7 +221,7 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
                           ?besluit eli:has_part ?artikel .
                           ?artikel eli:number ?nummer ;
                                   prov:value ?value .
-                          BIND(concat(?nummer, '\n', ?value) as ?nummerAndValue)
+                          BIND(concat(?nummer, '\\n', ?value) as ?nummerAndValue)
                       }
                       ORDER BY ?nummer
                     }
@@ -273,7 +273,7 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
               {
                 ?besluit eli:has_part ?artikel .
                 {
-                  SELECT ?besluit (GROUP_CONCAT(?nummerAndValue; separator="\n") AS ?newAggrContent)
+                  SELECT ?besluit (GROUP_CONCAT(?nummerAndValue; separator="\\n") AS ?newAggrContent)
                   WHERE {
                     {
                       SELECT ?besluit ?nummerAndValue
@@ -281,7 +281,7 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
                           ?besluit eli:has_part ?artikel .
                           ?artikel eli:number ?nummer ;
                                   prov:value ?value .
-                          BIND(concat(?nummer, '\n', ?value) as ?nummerAndValue)
+                          BIND(concat(?nummer, '\\n', ?value) as ?nummerAndValue)
                       }
                       ORDER BY ?nummer
                     }
