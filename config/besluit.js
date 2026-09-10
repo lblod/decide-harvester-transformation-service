@@ -221,7 +221,7 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
                           ?besluit eli:has_part ?artikel .
                           ?artikel eli:number ?nummer ;
                                   prov:value ?value .
-                          BIND(concat(?nummer, '\\n', ?value) as ?nummerAndValue)
+                          BIND(concat(str(?nummer), '\\n', str(?value)) as ?nummerAndValue)
                       }
                       ORDER BY ?nummer
                     }
@@ -281,7 +281,7 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
                           ?besluit eli:has_part ?artikel .
                           ?artikel eli:number ?nummer ;
                                   prov:value ?value .
-                          BIND(concat(?nummer, '\\n', ?value) as ?nummerAndValue)
+                          BIND(concat(str(?nummer), '\\n', str(?value)) as ?nummerAndValue)
                       }
                       ORDER BY ?nummer
                     }
