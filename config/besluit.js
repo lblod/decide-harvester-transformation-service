@@ -218,9 +218,14 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
                     {
                       SELECT ?besluit ?nummerAndValue
                       WHERE {
-                          ?besluit eli:has_part ?artikel .
-                          ?artikel eli:number ?nummer ;
-                                  prov:value ?value .
+                          GRAPH ${inputResourcesGraph} {
+                            ?besluit a besluit:Besluit .
+                          }
+                          GRAPH ${inputDataGraph} {
+                            ?besluit eli:has_part ?artikel .
+                            ?artikel eli:number ?nummer ;
+                                    prov:value ?value .
+                          }
                           BIND(concat(str(?nummer), '\\n', str(?value)) as ?nummerAndValue)
                       }
                       ORDER BY ?nummer
@@ -278,9 +283,14 @@ export const getTransformationQueries = (resourcesGraph, targetOutputGraph) => {
                     {
                       SELECT ?besluit ?nummerAndValue
                       WHERE {
-                          ?besluit eli:has_part ?artikel .
-                          ?artikel eli:number ?nummer ;
-                                  prov:value ?value .
+                          GRAPH ${inputResourcesGraph} {
+                            ?besluit a besluit:Besluit .
+                          }
+                          GRAPH ${inputDataGraph} {
+                            ?besluit eli:has_part ?artikel .
+                            ?artikel eli:number ?nummer ;
+                                    prov:value ?value .
+                          }
                           BIND(concat(str(?nummer), '\\n', str(?value)) as ?nummerAndValue)
                       }
                       ORDER BY ?nummer
